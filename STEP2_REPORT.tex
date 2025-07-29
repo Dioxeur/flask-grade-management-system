@@ -1,0 +1,578 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning}
+
+% Page setup
+\geometry{margin=1in}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Step 2 Report}
+\lhead{Flask Grade Management System}
+\cfoot{\thepage}
+
+% Code listing setup
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{gray!10},
+    frame=single,
+    breaklines=true,
+    showstringspaces=false
+}
+
+% Hyperlink setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+}
+
+\title{\textbf{Step 2 Report: Database \& Website Prototype} \\ 
+       \large Database Design, Web Functionalities \& System Architecture \\
+       \vspace{0.5cm}
+       \large Flask Grade Management System}
+\author{Gabriel Mokhele (Dioxeur)}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Executive Summary}
+
+This report documents the successful completion of Step 2 deliverables for the Flask Grade Management System project. The primary objectives included implementing a functional database system, developing core web functionalities, and creating a working prototype with operational features.
+
+\subsection{Project Overview}
+\begin{itemize}
+    \item \textbf{Project Name:} Flask Grade Management System
+    \item \textbf{Developer:} Gabriel Mokhele (GitHub: Dioxeur)
+    \item \textbf{Repository:} \url{https://github.com/Dioxeur/flask-grade-management-system}
+    \item \textbf{Status:} \textcolor{green}{\textbf{COMPLETED}}
+    \item \textbf{Completion Date:} \today
+\end{itemize}
+
+\section{Deliverables Status}
+
+\begin{longtable}{|p{2cm}|p{4cm}|p{2cm}|p{6cm}|}
+\hline
+\textbf{Step} & \textbf{Deliverable} & \textbf{Due Date} & \textbf{Format} \\
+\hline
+\endhead
+2 & Prototype with database & Day 2 & Database set, web site functionalities are operational \\
+\hline
+\end{longtable}
+
+\section{Database Architecture}
+
+\subsection{MySQL Database Implementation}
+
+The system utilizes a MySQL database named \texttt{user} hosted locally via XAMPP. The database consists of four interconnected tables that manage the complete grade management workflow.
+
+\subsubsection{Database Connection Configuration}
+\begin{lstlisting}[caption=Database Configuration]
+SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:@localhost/user'
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+\end{lstlisting}
+
+\subsection{Entity Relationship Diagram (ERD)}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{erd_screenshot.png}
+\caption{Entity Relationship Diagram - Database Structure}
+\label{fig:erd}
+\end{figure}
+
+The ERD demonstrates the complete database architecture with the following key relationships:
+
+\begin{itemize}
+    \item \textbf{USER} entity serves as the central hub for both students and teachers
+    \item \textbf{SUBJECT} entity connects to USER through teacher\_id (one teacher per subject)
+    \item \textbf{GRADE} entity maintains three foreign key relationships:
+    \begin{itemize}
+        \item student\_id → USER (which student received the grade)
+        \item subject\_id → SUBJECT (which subject the grade belongs to)
+        \item teacher\_id → USER (which teacher assigned the grade)
+    \end{itemize}
+    \item \textbf{NOTE} entity connects to USER through user\_id for personal notes
+\end{itemize}
+
+\subsection{Database Relationship Analysis}
+
+From the ERD, we can identify the following relationship cardinalities:
+
+\begin{itemize}
+    \item \textbf{One-to-Many:} USER (Teacher) → SUBJECT (A teacher can teach multiple subjects)
+    \item \textbf{Many-to-One:} GRADE → USER (Student) (A student can have multiple grades)
+    \item \textbf{Many-to-One:} GRADE → USER (Teacher) (A teacher can assign multiple grades)
+    \item \textbf{Many-to-One:} GRADE → SUBJECT (A subject can have multiple grades)
+    \item \textbf{One-to-Many:} USER → NOTE (A user can write multiple notes)
+\end{itemize}
+
+\subsection{Table Structures}
+
+\subsubsection{USER Table}
+\begin{longtable}{|p{3cm}|p{2cm}|p{2cm}|p{6cm}|}
+\hline
+\textbf{Column} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\
+\hline
+\endhead
+id & int(11) & PRIMARY KEY, AUTO\_INCREMENT & Unique user identifier \\
+\hline
+email & varchar(150) & UNIQUE, NOT NULL & User email address \\
+\hline
+password & varchar(150) & NOT NULL & Hashed password \\
+\hline
+first\_name & varchar(150) & NOT NULL & User's first name \\
+\hline
+role & varchar(20) & NOT NULL & User role: 'student' or 'teacher' \\
+\hline
+\end{longtable}
+
+\subsubsection{SUBJECT Table}
+\begin{longtable}{|p{3cm}|p{2cm}|p{2cm}|p{6cm}|}
+\hline
+\textbf{Column} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\
+\hline
+\endhead
+id & int(11) & PRIMARY KEY, AUTO\_INCREMENT & Unique subject identifier \\
+\hline
+name & varchar(100) & NOT NULL & Subject name \\
+\hline
+code & varchar(20) & UNIQUE & Subject code \\
+\hline
+teacher\_id & int(11) & FOREIGN KEY (user.id) & Assigned teacher \\
+\hline
+\end{longtable}
+
+\subsubsection{GRADE Table}
+\begin{longtable}{|p{3cm}|p{2cm}|p{2cm}|p{6cm}|}
+\hline
+\textbf{Column} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\
+\hline
+\endhead
+id & int(11) & PRIMARY KEY, AUTO\_INCREMENT & Unique grade identifier \\
+\hline
+value & float & NOT NULL & Grade value obtained \\
+\hline
+max\_value & float & DEFAULT 20.0 & Maximum possible grade \\
+\hline
+date & datetime & DEFAULT CURRENT\_TIMESTAMP & Grade assignment date \\
+\hline
+student\_id & int(11) & FOREIGN KEY (user.id) & Student who received grade \\
+\hline
+subject\_id & int(11) & FOREIGN KEY (subject.id) & Subject for the grade \\
+\hline
+teacher\_id & int(11) & FOREIGN KEY (user.id) & Teacher who assigned grade \\
+\hline
+\end{longtable}
+
+\subsubsection{NOTE Table}
+\begin{longtable}{|p{3cm}|p{2cm}|p{2cm}|p{6cm}|}
+\hline
+\textbf{Column} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\
+\hline
+\endhead
+id & int(11) & PRIMARY KEY, AUTO\_INCREMENT & Unique note identifier \\
+\hline
+data & varchar(1000) & NOT NULL & Note content \\
+\hline
+date & datetime & DEFAULT CURRENT\_TIMESTAMP & Note creation date \\
+\hline
+user\_id & int(11) & FOREIGN KEY (user.id) & Note author \\
+\hline
+\end{longtable}
+
+\subsection{Database Relationships}
+
+\begin{itemize}
+    \item \textbf{One-to-Many:} User → Subjects (Teacher teaches multiple subjects)
+    \item \textbf{One-to-Many:} User → Grades (Student receives multiple grades)
+    \item \textbf{One-to-Many:} User → Grades (Teacher assigns multiple grades)
+    \item \textbf{One-to-Many:} Subject → Grades (Subject has multiple grades)
+    \item \textbf{One-to-Many:} User → Notes (User writes multiple notes)
+\end{itemize}
+
+\subsection{Sample Data Analysis}
+
+\subsubsection{Current Users}
+\begin{itemize}
+    \item \textbf{Houssam} (ID: 2) - Student
+    \item \textbf{Madara} (ID: 3) - Teacher
+    \item \textbf{Kakashi} (ID: 4) - Teacher
+\end{itemize}
+
+\subsubsection{Current Subjects}
+\begin{itemize}
+    \item \textbf{Math} (Code: 101) - Taught by Madara
+    \item \textbf{Phil} (Code: 102) - Taught by Kakashi
+\end{itemize}
+
+\subsubsection{Current Grades}
+\begin{itemize}
+    \item Houssam: 19/20 in Math (assigned by Madara)
+    \item Houssam: 3/20 in Philosophy (assigned by Kakashi)
+\end{itemize}
+
+\section{Website Functionality Demonstration}
+
+This section provides a comprehensive walkthrough of the implemented web application, demonstrating each feature with detailed explanations and visual evidence of functionality.
+
+\subsection{User Authentication System}
+
+\subsubsection{User Registration Process}
+The registration system allows new users to create accounts with role-based access control.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{registration_page.png}
+\caption{Registration Interface - New User Account Creation}
+\label{fig:registration}
+\end{figure}
+
+\textbf{Key Features Demonstrated:}
+\begin{itemize}
+    \item Role selection dropdown (Teacher/Student) - determines user permissions
+    \item Email validation ensures unique user identification
+    \item Password security with client-side validation
+    \item Form validation with error handling and user feedback
+    \item Clean, responsive Bootstrap-based interface design
+\end{itemize}
+
+\subsubsection{User Login Authentication}
+The login system provides secure access with session management.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{login_page.png}
+\caption{Login Interface - Secure User Authentication}
+\label{fig:login}
+\end{figure}
+
+\textbf{Authentication Features:}
+\begin{itemize}
+    \item Email-based user identification
+    \item Password verification using Werkzeug hashing
+    \item Flask-Login session management for persistent login
+    \item Automatic role-based redirection after successful login
+    \item Error messaging for invalid credentials
+\end{itemize}
+
+\subsection{Teacher Dashboard and Functionality}
+
+\subsubsection{Teacher Main Dashboard}
+The teacher dashboard serves as the central hub for all teaching-related activities.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{teacher_dashboard.png}
+\caption{Teacher Dashboard - Central Management Interface}
+\label{fig:teacher_dash}
+\end{figure}
+
+\textbf{Dashboard Components:}
+\begin{itemize}
+    \item Welcome message with personalized greeting using user's first name
+    \item Navigation menu with role-specific options
+    \item Quick access buttons to primary functions (Create Subject, Manage Grades)
+    \item Subject overview showing all subjects assigned to the teacher
+    \item Real-time data display from the MySQL database
+\end{itemize}
+
+\subsubsection{Subject Creation Interface}
+Teachers can create and manage academic subjects through this interface.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{create_subject.png}
+\caption{Subject Creation - Adding New Academic Courses}
+\label{fig:create_subject}
+\end{figure}
+
+\textbf{Subject Management Features:}
+\begin{itemize}
+    \item Subject name input with validation
+    \item Unique subject code assignment for identification
+    \item Automatic teacher assignment (current logged-in teacher)
+    \item Database integration with foreign key relationships
+    \item Form validation preventing duplicate subject codes
+\end{itemize}
+
+\subsubsection{Grade Assignment System}
+The grade management system allows teachers to assign and track student performance.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{add_grade.png}
+\caption{Grade Assignment - Student Performance Tracking}
+\label{fig:add_grade}
+\end{figure}
+
+\textbf{Grade Assignment Process:}
+\begin{itemize}
+    \item Student selection from enrolled users with 'student' role
+    \item Subject selection from teacher's assigned subjects
+    \item Grade value input with maximum value specification (default: 20)
+    \item Automatic timestamp recording for grade assignment
+    \item Percentage calculation for performance analysis
+    \item Database relationships maintaining data integrity
+\end{itemize}
+
+\subsubsection{Grade Management Interface}
+Teachers can view, edit, and delete grades through this comprehensive management interface.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{manage_grades.png}
+\caption{Grade Management - Edit and Delete Operations}
+\label{fig:manage_grades}
+\end{figure}
+
+\textbf{Management Capabilities:}
+\begin{itemize}
+    \item Tabular display of all grades assigned by the teacher
+    \item Student name, subject, grade value, and percentage display
+    \item Edit functionality for grade corrections
+    \item Delete functionality with confirmation dialogs
+    \item Date tracking for audit purposes
+    \item Real-time percentage calculations
+\end{itemize}
+
+\subsection{Student Dashboard and Grade Viewing}
+
+\subsubsection{Student Grade Overview}
+Students can view their academic performance through a personalized dashboard.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{student_dashboard.png}
+\caption{Student Dashboard - Personal Academic Performance}
+\label{fig:student_dash}
+\end{figure}
+
+\textbf{Student View Features:}
+\begin{itemize}
+    \item Personalized welcome message with student's name
+    \item Complete grade history display
+    \item Subject-wise grade organization
+    \item Teacher identification for each grade
+    \item Percentage calculations for performance analysis
+    \item Date information for grade assignment tracking
+    \item Read-only access ensuring data security
+\end{itemize}
+
+\subsection{Navigation and User Experience}
+
+\subsubsection{Role-Based Navigation System}
+The navigation system adapts based on user roles and authentication status.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{navigation_bar.png}
+\caption{Navigation System - Role-Aware Interface}
+\label{fig:navigation}
+\end{figure}
+
+\textbf{Navigation Features:}
+\begin{itemize}
+    \item Dynamic role indicator showing current user's role (Teacher/Student)
+    \item Conditional menu items based on user permissions
+    \item Logout functionality with session termination
+    \item Responsive design for mobile compatibility
+    \item Consistent branding and visual hierarchy
+    \item Bootstrap integration for professional appearance
+\end{itemize}
+
+\subsection{Technical Implementation Highlights}
+
+\textbf{Security Measures:}
+\begin{itemize}
+    \item Password hashing using Werkzeug security functions
+    \item Session-based authentication with Flask-Login
+    \item Role-based access control preventing unauthorized access
+    \item CSRF protection through Flask's built-in security features
+\end{itemize}
+
+\textbf{Database Integration:}
+\begin{itemize}
+    \item Real-time data synchronization with MySQL database
+    \item Foreign key relationships maintaining data integrity
+    \item Automatic timestamp recording for audit trails
+    \item Efficient query optimization for performance
+\end{itemize}
+
+\textbf{User Experience Design:}
+\begin{itemize}
+    \item Responsive Bootstrap framework for cross-device compatibility
+    \item Intuitive navigation with clear visual hierarchy
+    \item Flash messaging system for user feedback
+    \item Confirmation dialogs for destructive operations
+    \item Clean, professional interface design
+\end{itemize}
+
+\section{Technical Implementation}
+
+\subsection{Flask Application Structure}
+
+\begin{lstlisting}[caption=Application Factory Pattern]
+def create_app():
+    app = Flask(__name__)
+    app.config['SECRET_KEY'] = 'createapp'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:@localhost/user'
+    
+    db.init_app(app)
+    
+    from .views import views
+    from .auth import auth
+    app.register_blueprint(views, url_prefix='/')
+    app.register_blueprint(auth, url_prefix='/')
+    
+    return app
+\end{lstlisting}
+
+\subsection{Database Models Implementation}
+
+\begin{lstlisting}[caption=SQLAlchemy Models]
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(150), unique=True)
+    password = db.Column(db.String(150))
+    first_name = db.Column(db.String(150))
+    role = db.Column(db.String(20), default='student')
+    
+    # Relationships
+    grades = db.relationship('Grade', foreign_keys='Grade.student_id')
+    taught_grades = db.relationship('Grade', foreign_keys='Grade.teacher_id')
+\end{lstlisting}
+
+\section{Testing \& Verification}
+
+\subsection{Database Testing}
+\begin{itemize}
+    \item ✓ Table creation and structure verification
+    \item ✓ Foreign key constraints validation
+    \item ✓ Data insertion and retrieval testing
+    \item ✓ Relationship integrity verification
+\end{itemize}
+
+\subsection{Functionality Testing}
+\begin{itemize}
+    \item ✓ User registration and login workflows
+    \item ✓ Role-based access control
+    \item ✓ CRUD operations for grades and subjects
+    \item ✓ Data validation and error handling
+\end{itemize}
+
+\section{Conclusion}
+
+Step 2 has been successfully completed with all deliverables implemented and operational. The system now features:
+
+\begin{itemize}
+    \item Fully functional MySQL database with proper relationships
+    \item Complete user authentication and authorization system
+    \item Operational teacher and student dashboards
+    \item Grade management system with full CRUD capabilities
+    \item Responsive web interface with intuitive navigation
+\end{itemize}
+
+The database contains sample data demonstrating all relationships and the website functionalities are fully operational and ready for comprehensive testing.
+
+\vspace{1cm}
+
+\noindent\textbf{Repository URL:} \url{https://github.com/Dioxeur/flask-grade-management-system}
+
+\noindent\textbf{Project Status:} Step 2 Completed Successfully
+
+\section{Website Functionality Screenshots}
+
+\subsection{Authentication System}
+
+\subsubsection{Login Interface}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{login_page.png}
+\caption{User Login Page - Email and Password Authentication}
+\label{fig:login}
+\end{figure}
+
+\subsubsection{Registration Interface}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{registration_page.png}
+\caption{User Registration Page - Role Selection (Teacher/Student)}
+\label{fig:registration}
+\end{figure}
+
+\subsection{Teacher Dashboard}
+
+\subsubsection{Teacher Main Dashboard}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{teacher_dashboard.png}
+\caption{Teacher Dashboard - Subject Management and Grade Operations}
+\label{fig:teacher_dash}
+\end{figure}
+
+\subsubsection{Subject Creation}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{create_subject.png}
+\caption{Create Subject Page - Adding New Academic Subjects}
+\label{fig:create_subject}
+\end{figure}
+
+\subsubsection{Grade Management}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{add_grade.png}
+\caption{Add Grade Interface - Assigning Grades to Students}
+\label{fig:add_grade}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{manage_grades.png}
+\caption{Manage Grades Page - Edit and Delete Grade Operations}
+\label{fig:manage_grades}
+\end{figure}
+
+\subsection{Student Dashboard}
+
+\subsubsection{Student Grade View}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{student_dashboard.png}
+\caption{Student Dashboard - Personal Grade Overview with Percentages}
+\label{fig:student_dash}
+\end{figure}
+
+\subsection{Navigation System}
+
+\subsubsection{Role-Based Navigation}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{navigation_bar.png}
+\caption{Navigation Bar - Role Indicator and Menu Options}
+\label{fig:navigation}
+\end{figure}
+
+\end{document}
+
+

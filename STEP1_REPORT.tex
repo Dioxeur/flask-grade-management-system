@@ -1,0 +1,309 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+
+% Page setup
+\geometry{margin=1in}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Step 1 Report}
+\lhead{Flask Grade Management System}
+\cfoot{\thepage}
+
+% Code listing setup
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{gray!10},
+    frame=single,
+    breaklines=true,
+    showstringspaces=false
+}
+
+% Hyperlink setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+}
+
+\title{\textbf{Step 1 Report: Prep Work} \\ 
+       \large Tools Installation, Environment Setup \& Git Repository \\
+       \vspace{0.5cm}
+       \large Flask Grade Management System}
+\author{Gabriel Mokhele (Dioxeur)}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Executive Summary}
+
+This report documents the successful completion of Step 1 deliverables for the Flask Grade Management System project. The primary objectives included establishing a robust development environment, implementing version control systems, and preparing the foundation for subsequent development phases.
+
+\subsection{Project Overview}
+\begin{itemize}
+    \item \textbf{Project Name:} Flask Grade Management System
+    \item \textbf{Developer:} Gabriel Mokhele (GitHub: Dioxeur)
+    \item \textbf{Repository:} \url{https://github.com/Dioxeur/flask-grade-management-system}
+    \item \textbf{Status:} \textcolor{green}{\textbf{COMPLETED}}
+    \item \textbf{Completion Date:} \today
+\end{itemize}
+
+\section{Deliverables Status}
+
+\begin{longtable}{|p{2cm}|p{4cm}|p{2cm}|p{6cm}|}
+\hline
+\textbf{Step} & \textbf{Deliverable} & \textbf{Due Date} & \textbf{Format} \\
+\hline
+\endhead
+1 & Prep work & Day 1 & Tools installation, setting up the environment, Git deposit \\
+\hline
+\end{longtable}
+
+\section{Technical Implementation}
+
+\subsection{Tools Installation}
+
+\subsubsection{Python Environment}
+\begin{itemize}
+    \item \textbf{Python Version:} 3.7+ (Verified operational)
+    \item \textbf{Package Manager:} pip (Latest version)
+    \item \textbf{Virtual Environment Tool:} venv module
+\end{itemize}
+
+\subsubsection{Database System}
+\begin{itemize}
+    \item \textbf{Database Engine:} MySQL
+    \item \textbf{Management Interface:} phpMyAdmin via XAMPP
+    \item \textbf{Database Name:} \texttt{user}
+    \item \textbf{Connection Status:} Verified with Flask-SQLAlchemy
+\end{itemize}
+
+\subsubsection{Development Tools}
+\begin{itemize}
+    \item \textbf{Version Control:} Git
+    \item \textbf{Remote Repository:} GitHub
+    \item \textbf{Terminal:} Command line interface configured
+\end{itemize}
+
+\subsection{Environment Setup}
+
+\subsubsection{Virtual Environment Configuration}
+The virtual environment was successfully created and activated:
+
+\begin{lstlisting}[language=bash, caption=Virtual Environment Setup]
+# Environment creation
+python -m venv .venv
+
+# Activation (Windows)
+.venv\Scripts\activate
+
+# Verification
+pip list
+\end{lstlisting}
+
+\subsubsection{Dependencies Management}
+A comprehensive \texttt{requirements.txt} file was generated containing all necessary packages:
+
+\begin{lstlisting}[caption=Key Dependencies]
+Flask==2.3.3
+Flask-Login==0.6.3
+Flask-SQLAlchemy==3.0.5
+mysql-connector-python==8.1.0
+Werkzeug==2.3.7
+\end{lstlisting}
+
+\subsubsection{Project Structure}
+The following professional project structure was established:
+
+\begin{lstlisting}[caption=Project Directory Structure]
+flask-grade-management-system/
+├── .venv/                    # Virtual environment (ignored)
+├── website/                  # Flask application package
+│   ├── __init__.py          # Application factory
+│   ├── auth.py              # Authentication routes
+│   ├── views.py             # Main application routes
+│   ├── models.py            # Database models
+│   └── templates/           # HTML templates
+│       ├── base.html
+│       ├── login.html
+│       ├── sign_up.html
+│       ├── home.html
+│       ├── teacher_dashboard.html
+│       ├── student_dashboard.html
+│       ├── create_subject.html
+│       ├── add_grade.html
+│       ├── edit_grade.html
+│       └── manage_grades.html
+├── main.py                  # Application entry point
+├── requirements.txt         # Dependencies specification
+├── .gitignore              # Git ignore configuration
+└── README.md               # Project documentation
+\end{lstlisting}
+
+\subsection{Git Repository Implementation}
+
+\subsubsection{Local Repository Initialization}
+\begin{lstlisting}[language=bash, caption=Git Initialization]
+# Repository initialization
+git init
+
+# Initial file staging
+git add .
+
+# Initial commit
+git commit -m "Initial commit: Flask Grade Management System"
+\end{lstlisting}
+
+\subsubsection{Version Control Configuration}
+A comprehensive \texttt{.gitignore} file was implemented to exclude:
+
+\begin{lstlisting}[caption=Git Ignore Configuration]
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual Environment
+.venv/
+
+# Database files
+*.sql
+*.db
+
+# Environment variables
+.env
+
+# IDE files
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+\end{lstlisting}
+
+\subsubsection{Remote Repository Setup}
+\begin{lstlisting}[language=bash, caption=GitHub Integration]
+# Remote repository connection
+git remote add origin https://github.com/Dioxeur/flask-grade-management-system.git
+
+# Branch configuration
+git branch -M main
+
+# Initial push
+git push -u origin main
+\end{lstlisting}
+
+\section{Application Architecture}
+
+\subsection{Flask Application Design}
+The application follows Flask best practices with a modular structure:
+
+\begin{itemize}
+    \item \textbf{Application Factory Pattern:} Implemented in \texttt{website/\_\_init\_\_.py}
+    \item \textbf{Blueprint Architecture:} Separate modules for authentication and views
+    \item \textbf{Database Integration:} SQLAlchemy ORM with MySQL backend
+    \item \textbf{User Authentication:} Flask-Login for session management
+\end{itemize}
+
+\subsection{Database Models}
+Three primary models were established:
+\begin{itemize}
+    \item \textbf{User Model:} Handles teacher and student accounts
+    \item \textbf{Subject Model:} Manages academic subjects
+    \item \textbf{Grade Model:} Tracks student grades and assignments
+\end{itemize}
+
+\section{Quality Assurance}
+
+\subsection{Code Quality Standards}
+\begin{itemize}
+    \item ✓ Clean project structure following Flask conventions
+    \item ✓ Proper separation of concerns (MVC pattern)
+    \item ✓ Comprehensive error handling implementation
+    \item ✓ Security best practices (password hashing, session management)
+\end{itemize}
+
+\subsection{Documentation Standards}
+\begin{itemize}
+    \item ✓ Detailed README with installation instructions
+    \item ✓ Clear project description and feature specifications
+    \item ✓ Professional repository presentation
+    \item ✓ Inline code documentation
+\end{itemize}
+
+\subsection{Version Control Best Practices}
+\begin{itemize}
+    \item ✓ Meaningful commit messages
+    \item ✓ Proper file organization and .gitignore configuration
+    \item ✓ Remote backup and collaboration setup
+    \item ✓ Branch protection and workflow preparation
+\end{itemize}
+
+\section{Challenges and Solutions}
+
+\subsection{Cross-Platform Compatibility}
+\textbf{Challenge:} Git line ending warnings (LF/CRLF conversion) on Windows system.
+
+\textbf{Solution:} Configured Git to handle cross-platform line ending conversion automatically, ensuring compatibility across different operating systems.
+
+\subsection{Remote Repository Configuration}
+\textbf{Challenge:} "Remote origin already exists" error during GitHub connection.
+
+\textbf{Solution:} Properly removed existing remote configuration and re-established clean connection to GitHub repository.
+
+\section{Testing and Verification}
+
+\subsection{Environment Testing}
+\begin{itemize}
+    \item ✓ Virtual environment activation and deactivation
+    \item ✓ Package installation and dependency resolution
+    \item ✓ Database connection and basic operations
+    \item ✓ Flask application startup and basic routing
+\end{itemize}
+
+\subsection{Repository Verification}
+\begin{itemize}
+    \item ✓ Local Git operations (add, commit, status)
+    \item ✓ Remote push and pull operations
+    \item ✓ GitHub repository accessibility and presentation
+    \item ✓ File ignore functionality verification
+\end{itemize}
+
+\section{Conclusion}
+
+Step 1 has been successfully completed with all deliverables met according to the specified timeline. The project now has a solid foundation featuring:
+
+\begin{itemize}
+    \item Professional development environment with proper tool configuration
+    \item Robust version control system with remote backup
+    \item Clear documentation standards and project structure
+    \item Scalable application architecture following industry best practices
+\end{itemize}
+
+All tools have been installed and configured, the development environment is operational, and the Git repository has been successfully established with remote backup on GitHub.
+
+\vspace{1cm}
+
+\noindent\textbf{Repository URL:} \url{https://github.com/Dioxeur/flask-grade-management-system}
+
+\noindent\textbf{Project Status:} Step 1 Completed Successfully
+
+\end{document}
