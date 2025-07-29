@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from website.models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from website import db
@@ -7,7 +7,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 auth = Blueprint('auth', __name__)
 
 
-@auth.route("/login", methods=['Get', 'POST'])
+@auth.route("/login", methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -16,8 +16,12 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user:
             if check_password_hash(user.password, password):
-                flash('Logged in successfully!', category='successful')
+                flash('Logged in successfully!', category='success')
                 login_user(user, remember=True)
+                
+                # Set session as permanent for timeout
+                session.permanent = True
+                
                 return redirect(url_for('views.home'))
             else:
                 flash('Incorrect Password, please try again.', category='error')
