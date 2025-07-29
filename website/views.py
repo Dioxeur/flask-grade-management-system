@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 from website.models import Note, Subject, Grade, User
+from website.forms import NoteForm, SubjectForm, AddGradeForm
 from website import db
 
 
@@ -13,17 +14,16 @@ def home():
     elif current_user.role == 'student':
         return redirect(url_for('views.student_dashboard'))
     
-    # Default note functionality for backward compatibility
-    if request.method == 'POST':
-        note = request.form.get('note')
-        if len(note) < 1:
-            flash('Note too short!', category='error')
-        else:
-            new_note = Note(data=note, user_id=current_user.id)
-            db.session.add(new_note)
-            db.session.commit()
-            flash('Note Added', category='successful')
-    return render_template("home.html", user=current_user)
+    # Default note functionality with secure form
+    form = NoteForm()
+    if form.validate_on_submit():
+        new_note = Note(data=form.note.data, user_id=current_user.id)
+        db.session.add(new_note)
+        db.session.commit()
+        flash('Note added successfully!', category='success')
+        return redirect(url_for('views.home'))
+    
+    return render_template("home.html", user=current_user, form=form)
 
 @views.route('/teacher-dashboard')
 @login_required
@@ -52,22 +52,19 @@ def create_subject():
         flash('Access denied. Teachers only.', category='error')
         return redirect(url_for('views.home'))
     
-    if request.method == 'POST':
-        name = request.form.get('name')
-        code = request.form.get('code')
-        
-        if len(name) < 1:
-            flash('Subject name is required!', category='error')
-        elif len(code) < 1:
-            flash('Subject code is required!', category='error')
-        else:
-            new_subject = Subject(name=name, code=code, teacher_id=current_user.id)
-            db.session.add(new_subject)
-            db.session.commit()
-            flash('Subject created successfully!', category='success')
-            return redirect(url_for('views.teacher_dashboard'))
+    form = SubjectForm()
+    if form.validate_on_submit():
+        new_subject = Subject(
+            name=form.name.data, 
+            code=form.code.data.upper(), 
+            teacher_id=current_user.id
+        )
+        db.session.add(new_subject)
+        db.session.commit()
+        flash('Subject created successfully!', category='success')
+        return redirect(url_for('views.teacher_dashboard'))
     
-    return render_template("create_subject.html", user=current_user)
+    return render_template("create_subject.html", user=current_user, form=form)
 
 @views.route('/add-grade/<int:subject_id>', methods=['GET', 'POST'])
 @login_required
@@ -81,35 +78,35 @@ def add_grade(subject_id):
         flash('You can only add grades to your own subjects.', category='error')
         return redirect(url_for('views.teacher_dashboard'))
     
-    if request.method == 'POST':
-        student_id = request.form.get('student_id')
-        value = request.form.get('value')
-        max_value = request.form.get('max_value', 20.0)
-        
-        if not student_id or not value:
-            flash('Student and grade value are required!', category='error')
-        else:
-            new_grade = Grade(
-                value=float(value),
-                max_value=float(max_value),
-                student_id=int(student_id),
-                subject_id=subject_id,
-                teacher_id=current_user.id
-            )
-            db.session.add(new_grade)
-            db.session.commit()
-            flash('Grade added successfully!', category='success')
-            return redirect(url_for('views.teacher_dashboard'))
+    form = AddGradeForm()
+    if form.validate_on_submit():
+        new_grade = Grade(
+            value=float(form.value.data),
+            max_value=float(form.max_value.data),
+            student_id=form.student_id.data,
+            subject_id=subject_id,
+            teacher_id=current_user.id
+        )
+        db.session.add(new_grade)
+        db.session.commit()
+        flash('Grade added successfully!', category='success')
+        return redirect(url_for('views.teacher_dashboard'))
     
-    students = User.query.filter_by(role='student').all()
-    return render_template("add_grade.html", user=current_user, subject=subject, students=students)
+    return render_template("add_grade.html", user=current_user, subject=subject, form=form)
 
-@views.route('/delete/<id>/', methods = ['GET', 'POST'])
+@views.route('/delete/<int:id>/', methods=['GET', 'POST'])
+@login_required
 def delete(id):
-    my_data = Note.query.get(id)
-    db.session.delete(my_data)
+    note = Note.query.get_or_404(id)
+    
+    # Security check: only allow users to delete their own notes
+    if note.user_id != current_user.id:
+        flash('You can only delete your own notes.', category='error')
+        return redirect(url_for('views.home'))
+    
+    db.session.delete(note)
     db.session.commit()
-    flash('Employee Deleted Successfully')
+    flash('Note deleted successfully!', category='success')
     return redirect(url_for('views.home'))
 
 @views.route('/')
@@ -183,7 +180,5 @@ def delete_grade(grade_id):
     db.session.commit()
     flash('Grade deleted successfully!', category='success')
     return redirect(url_for('views.manage_grades', subject_id=subject_id))
-
-
 
 

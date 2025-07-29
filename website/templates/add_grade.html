@@ -6,24 +6,41 @@
     <h1>Add Grade for {{ subject.name }}</h1>
     
     <form method="POST">
+        {{ form.hidden_tag() }}
         <div class="form-group">
-            <label for="student_id">Select Student</label>
-            <select class="form-control" id="student_id" name="student_id" required>
-                <option value="">Choose a student...</option>
-                {% for student in students %}
-                <option value="{{ student.id }}">{{ student.first_name }} ({{ student.email }})</option>
-                {% endfor %}
-            </select>
+            {{ form.student_id.label(class="form-label") }}
+            {{ form.student_id(class="form-control") }}
+            {% if form.student_id.errors %}
+                <div class="text-danger">
+                    {% for error in form.student_id.errors %}
+                        <small>{{ error }}</small><br>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
         
         <div class="form-group">
-            <label for="value">Grade Value</label>
-            <input type="number" step="0.1" class="form-control" id="value" name="value" required>
+            {{ form.value.label(class="form-label") }}
+            {{ form.value(class="form-control", step="0.1") }}
+            {% if form.value.errors %}
+                <div class="text-danger">
+                    {% for error in form.value.errors %}
+                        <small>{{ error }}</small><br>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
         
         <div class="form-group">
-            <label for="max_value">Maximum Points</label>
-            <input type="number" step="0.1" class="form-control" id="max_value" name="max_value" value="20.0" required>
+            {{ form.max_value.label(class="form-label") }}
+            {{ form.max_value(class="form-control", step="0.1") }}
+            {% if form.max_value.errors %}
+                <div class="text-danger">
+                    {% for error in form.max_value.errors %}
+                        <small>{{ error }}</small><br>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
         
         <button type="submit" class="btn btn-primary">Add Grade</button>

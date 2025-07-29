@@ -6,14 +6,23 @@
 <ul class="list-group list-group-flush" id="notes">
     {% for note in user.notes %}
     <li class="list-group-item">{{ note.data }}
-        <td>
-            <a href="/delete/{{note.id}}" class="close" onclick="return confirm('Are you sure you want to Delete')">x</a>
-        </td>
+        <a href="/delete/{{note.id}}" class="close" onclick="return confirm('Are you sure you want to Delete')">×</a>
     </li>
     {% endfor %}
 </ul>
 <form method="POST">
-    <textarea name="note" id="note" class="form-control"></textarea>
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        {{ form.note.label(class="form-label") }}
+        {{ form.note(class="form-control", rows="3") }}
+        {% if form.note.errors %}
+            <div class="text-danger">
+                {% for error in form.note.errors %}
+                    <small>{{ error }}</small><br>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
     <br>
     <div align="center">
         <button type="submit" class="btn btn-primary">Add Note</button>

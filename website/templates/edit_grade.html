@@ -11,6 +11,7 @@
             <h6 class="card-subtitle mb-2 text-muted">Subject: {{ grade.subject.name }}</h6>
             
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="form-group">
                     <label for="value">Grade Value</label>
                     <input type="number" step="0.1" class="form-control" id="value" name="value" value="{{ grade.value }}" required>
