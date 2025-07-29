@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Create Subject{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Create New Subject</h1>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="name">Subject Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="code">Subject Code</label>
+            <input type="text" class="form-control" id="code" name="code" placeholder="e.g., MATH101" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Create Subject</button>
+        <a href="{{ url_for('views.teacher_dashboard') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

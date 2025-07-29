@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Add Grade{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Add Grade for {{ subject.name }}</h1>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="student_id">Select Student</label>
+            <select class="form-control" id="student_id" name="student_id" required>
+                <option value="">Choose a student...</option>
+                {% for student in students %}
+                <option value="{{ student.id }}">{{ student.first_name }} ({{ student.email }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="value">Grade Value</label>
+            <input type="number" step="0.1" class="form-control" id="value" name="value" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="max_value">Maximum Points</label>
+            <input type="number" step="0.1" class="form-control" id="max_value" name="max_value" value="20.0" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Add Grade</button>
+        <a href="{{ url_for('views.teacher_dashboard') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

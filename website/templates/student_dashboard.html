@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Student Dashboard</h1>
+    <p>Welcome, {{ user.first_name }}!</p>
+    
+    <h3>Your Grades</h3>
+    {% if grades %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Grade</th>
+                        <th>Max Points</th>
+                        <th>Percentage</th>
+                        <th>Teacher</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for grade in grades %}
+                    <tr>
+                        <td>{{ grade.subject.name }} ({{ grade.subject.code }})</td>
+                        <td>{{ grade.value }}</td>
+                        <td>{{ grade.max_value }}</td>
+                        <td>{{ "%.1f"|format((grade.value / grade.max_value) * 100) }}%</td>
+                        <td>{{ grade.teacher.first_name }}</td>
+                        <td>{{ grade.date.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No grades recorded yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
